@@ -528,9 +528,6 @@ void VolumeMeter::paintEvent(QPaintEvent *event)
 		}
 	} else {
 		// Horizontal mode - meters go left to right, channels stacked
-		int tickHeight = 4 + metrics.capHeight();
-		int meterHeight = height - tickHeight;
-
 		// Draw tick marks and labels
 		paintTicks(painter, INDICATOR_THICKNESS + 3,
 			   displayNrAudioChannels * (meterThickness + 1) - 1,

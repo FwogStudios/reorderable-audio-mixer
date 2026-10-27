@@ -10,6 +10,9 @@ crash-logs/
 # Build outputs
 build/
 build_x64/
+build_macos/
+build_x86_64/
+.ccache/
 out/
 release/
 debug/
