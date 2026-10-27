@@ -67,13 +67,75 @@ jobs:
             echo "pluginName=${plugin_name}" >> $GITHUB_OUTPUT
           fi
 
-  # macOS build disabled - OBS 32.0.0 has upstream CMake issue with libobs-metal
-  # Re-enable when OBS fixes the Metal renderer build
-  # macos-build:
-  #   name: Build for macOS
-  #   runs-on: macos-15
-  #   needs: check-event
-  #   ...
+  macos-build:
+    name: Build for macOS
+    runs-on: macos-15
+    needs: check-event
+    defaults:
+      run:
+        shell: zsh --no-rcs --errexit --pipefail {0}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Set Up Environment
+        id: setup
+        run: |
+          : Set Up Environment
+          if (( ${+RUNNER_DEBUG} )) setopt XTRACE
+
+          print '::group::Select newest Xcode on the runner'
+          local xcode_app="$(ls -d /Applications/Xcode_*.app | sort -V | tail -n 1)"
+          print "Using ${xcode_app}"
+          sudo xcode-select --switch "${xcode_app}/Contents/Developer"
+          xcodebuild -version
+          print '::endgroup::'
+
+          local product_name
+          local product_version
+          read -r product_name product_version <<< \
+            "$(jq -r '. | {name, version} | join(" ")' buildspec.json)"
+
+          print "pluginName=${product_name}" >> $GITHUB_OUTPUT
+          print "pluginVersion=${product_version}" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: ccache-cache
+        with:
+          path: ${{ github.workspace }}/.ccache
+          key: ${{ runner.os }}-ccache-${{ needs.check-event.outputs.config }}
+          restore-keys: |
+            ${{ runner.os }}-ccache-
+
+      - name: Build Plugin
+        uses: ./.github/actions/build-plugin
+        with:
+          target: macos-universal
+          config: ${{ needs.check-event.outputs.config }}
+          codesign: false
+
+      - name: Package Plugin
+        uses: ./.github/actions/package-plugin
+        with:
+          target: macos-universal
+          config: ${{ needs.check-event.outputs.config }}
+          package: ${{ fromJSON(needs.check-event.outputs.package) }}
+          codesign: false
+          notarize: false
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-macos-universal-${{ needs.check-event.outputs.commitHash }}
+          path: ${{ github.workspace }}/release/${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-macos-universal.*
+
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: github.event_name != 'pull_request' && steps.ccache-cache.outputs.cache-hit != 'true'
+        with:
+          path: ${{ github.workspace }}/.ccache
+          key: ${{ runner.os }}-ccache-${{ needs.check-event.outputs.config }}
 
   ubuntu-build:
     name: Build for Ubuntu
