@@ -32,6 +32,11 @@ if(ENABLE_QT)
     PROPERTIES AUTOMOC ON
                AUTOUIC ON
                AUTORCC ON)
+  # Xcode 26 exports every platform's *_DEPLOYMENT_TARGET into script phases, and the
+  # moc predefines probe runs clang there; nothing here needs moc_predefs.h, so skip it
+  if(APPLE)
+    set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES AUTOMOC_COMPILER_PREDEFINES OFF)
+  endif()
 endif()
 
 target_sources(
