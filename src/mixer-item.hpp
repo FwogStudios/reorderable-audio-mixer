@@ -32,12 +32,17 @@ public:
 	void SetSelected(bool selected);
 	bool IsSelected() const { return selected; }
 
+	// Adds this source's actions (Hide, Filters, Properties, Advanced Audio) to a menu
+	void AddSourceActions(QMenu &menu);
+
 signals:
 	void HideRequested(MixerItem *item);
 	void Selected(MixerItem *item);
+	void ContextMenuRequested(MixerItem *item);
 
 protected:
 	void mousePressEvent(QMouseEvent *event) override;
+	void contextMenuEvent(QContextMenuEvent *event) override;
 
 private slots:
 	void OnMuteToggled(bool checked);

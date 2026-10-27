@@ -449,6 +449,7 @@ void AudioMixerDock::ActivateAudioSource(OBSSource source)
 
 	// Connect signals
 	connect(item, &MixerItem::Selected, this, &AudioMixerDock::OnItemSelected);
+	connect(item, &MixerItem::ContextMenuRequested, this, &AudioMixerDock::ShowItemContextMenu);
 	connect(item, &MixerItem::HideRequested, this, [this](MixerItem *item) {
 		// Capture the source before any cleanup happens
 		OBSSource source = OBSSource(item->GetSource());
@@ -669,11 +670,12 @@ void AudioMixerDock::UnhideAllSources()
 	obs_enum_sources(unhideCallback, this);
 }
 
-void AudioMixerDock::ShowContextMenu(const QPoint &pos)
+void AudioMixerDock::AddDockActions(QMenu &menu)
 {
-	Q_UNUSED(pos);
+	QAction *unhideAllAction = menu.addAction(obs_module_text("BetterAudioMixer.UnhideAll"));
+	connect(unhideAllAction, &QAction::triggered, this, &AudioMixerDock::UnhideAllSources);
 
-	QMenu menu(this);
+	menu.addSeparator();
 
 	// Toggle layout - show opposite of current state
 	const char *layoutText = vertical
@@ -683,12 +685,26 @@ void AudioMixerDock::ShowContextMenu(const QPoint &pos)
 	connect(layoutAction, &QAction::triggered, this, [this]() {
 		SetVerticalLayout(!vertical);
 	});
+}
 
+// Right-click on empty dock space: dock-level actions only
+void AudioMixerDock::ShowContextMenu(const QPoint &pos)
+{
+	Q_UNUSED(pos);
+
+	QMenu menu(this);
+	AddDockActions(menu);
+	menu.exec(QCursor::pos());
+}
+
+// Config button or right-click on a channel: source actions plus dock actions,
+// so both entry points show the same menu
+void AudioMixerDock::ShowItemContextMenu(MixerItem *item)
+{
+	QMenu menu(this);
+	item->AddSourceActions(menu);
 	menu.addSeparator();
-
-	QAction *unhideAllAction = menu.addAction(obs_module_text("BetterAudioMixer.UnhideAll"));
-	connect(unhideAllAction, &QAction::triggered, this, &AudioMixerDock::UnhideAllSources);
-
+	AddDockActions(menu);
 	menu.exec(QCursor::pos());
 }
 

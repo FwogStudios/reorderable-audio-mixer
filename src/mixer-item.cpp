@@ -6,6 +6,7 @@
 
 #include <QCursor>
 #include <QAction>
+#include <QContextMenuEvent>
 #include <QIcon>
 #include <QMainWindow>
 #include <QMouseEvent>
@@ -432,10 +433,21 @@ void MixerItem::mousePressEvent(QMouseEvent *event)
 	QFrame::mousePressEvent(event);
 }
 
+void MixerItem::contextMenuEvent(QContextMenuEvent *event)
+{
+	// Right-click on a channel opens the same menu as its config button
+	emit Selected(this);
+	emit ContextMenuRequested(this);
+	event->accept();
+}
+
 void MixerItem::OnConfigClicked()
 {
-	QMenu menu(this);
+	emit ContextMenuRequested(this);
+}
 
+void MixerItem::AddSourceActions(QMenu &menu)
+{
 	QAction *hideAction = menu.addAction(obs_module_text("BetterAudioMixer.Hide"));
 	connect(hideAction, &QAction::triggered, this, &MixerItem::OnHideClicked);
 
@@ -451,8 +463,6 @@ void MixerItem::OnConfigClicked()
 
 	QAction *advAudioAction = menu.addAction(obs_module_text("BetterAudioMixer.AdvancedAudio"));
 	connect(advAudioAction, &QAction::triggered, this, &MixerItem::OnAdvancedAudioClicked);
-
-	menu.exec(QCursor::pos());
 }
 
 void MixerItem::OnHideClicked()

@@ -56,11 +56,13 @@ public slots:
 
 private slots:
 	void ShowContextMenu(const QPoint &pos);
+	void ShowItemContextMenu(MixerItem *item);
 	void OnItemSelected(MixerItem *item);
 	void OnMoveUpClicked();
 	void OnMoveDownClicked();
 
 private:
+	void AddDockActions(QMenu &menu);
 	void SetupUI();
 	void ConnectSignalHandlers();
 	void DisconnectSignalHandlers();
