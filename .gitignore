@@ -1,8 +1,5 @@
 # OBS Plugin .gitignore
 
-# Reference files (OBS installation for development)
-reference-files/
-
 # Local dev scripts (not needed for CI)
 *.bat
 
