@@ -58,11 +58,25 @@ function Package {
 
     Remove-Item @RemoveArgs
 
-    Log-Group "Archiving ${ProductName}..."
+    $ReleaseDir = "${ProjectRoot}/release/${Configuration}"
+
+    # Legacy layout: extract into the OBS install folder (obs-plugins/64bit + data/obs-plugins)
+    Log-Group "Archiving ${ProductName} (legacy layout)..."
     $CompressArgs = @{
-        Path = (Get-ChildItem -Path "${ProjectRoot}/release/${Configuration}" -Exclude "${OutputName}*.*")
+        Path = @("${ReleaseDir}/obs-plugins", "${ReleaseDir}/data")
         CompressionLevel = 'Optimal'
         DestinationPath = "${ProjectRoot}/release/${OutputName}.zip"
+        Verbose = ($Env:CI -ne $null)
+    }
+    Compress-Archive -Force @CompressArgs
+    Log-Group
+
+    # OBS 33+ layout: extract into %ProgramData%\obs-studio\plugins (or <portable OBS>\plugins)
+    Log-Group "Archiving ${ProductName} (plugins-dir layout)..."
+    $CompressArgs = @{
+        Path = (Get-ChildItem -Path "${ReleaseDir}/plugins")
+        CompressionLevel = 'Optimal'
+        DestinationPath = "${ProjectRoot}/release/${OutputName}-plugins-dir.zip"
         Verbose = ($Env:CI -ne $null)
     }
     Compress-Archive -Force @CompressArgs

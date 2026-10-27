@@ -22,12 +22,23 @@ function(set_target_properties_plugin target)
 
   set_target_properties(${target} PROPERTIES VERSION 0 SOVERSION ${PLUGIN_VERSION})
 
+  # Legacy layout (OBS <= 32, still loaded by OBS 33): obs-plugins/64bit + data/obs-plugins/<plugin>
   install(TARGETS ${target} RUNTIME DESTINATION "obs-plugins/64bit" LIBRARY DESTINATION "obs-plugins/64bit")
 
   install(
     FILES "$<TARGET_PDB_FILE:${target}>"
     CONFIGURATIONS RelWithDebInfo Debug Release
     DESTINATION "obs-plugins/64bit"
+    OPTIONAL
+  )
+
+  # OBS 33+ layout: plugins/<plugin>/<plugin>.dll + plugins/<plugin>/data
+  install(TARGETS ${target} RUNTIME DESTINATION "plugins/${target}" LIBRARY DESTINATION "plugins/${target}")
+
+  install(
+    FILES "$<TARGET_PDB_FILE:${target}>"
+    CONFIGURATIONS RelWithDebInfo Debug Release
+    DESTINATION "plugins/${target}"
     OPTIONAL
   )
 
@@ -76,6 +87,7 @@ function(target_install_resources target)
     endforeach()
 
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data/" DESTINATION "data/obs-plugins/${target}" USE_SOURCE_PERMISSIONS)
+    install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data/" DESTINATION "plugins/${target}/data" USE_SOURCE_PERMISSIONS)
 
     add_custom_command(
       TARGET ${target}
@@ -95,6 +107,7 @@ function(target_add_resource target resource)
   message(DEBUG "Add resource '${resource}' to target ${target} at destination '${target_destination}'...")
 
   install(FILES "${resource}" DESTINATION "data/obs-plugins/${target}" COMPONENT Runtime)
+  install(FILES "${resource}" DESTINATION "plugins/${target}/data" COMPONENT Runtime)
 
   add_custom_command(
     TARGET ${target}
