@@ -22,6 +22,18 @@ class VolumeMeter : public QWidget {
 		WRITE setForegroundWarningColor DESIGNABLE true)
 	Q_PROPERTY(QColor foregroundErrorColor READ getForegroundErrorColor
 		WRITE setForegroundErrorColor DESIGNABLE true)
+	Q_PROPERTY(QColor backgroundNominalColorDisabled READ getBackgroundNominalColorDisabled
+		WRITE setBackgroundNominalColorDisabled DESIGNABLE true)
+	Q_PROPERTY(QColor backgroundWarningColorDisabled READ getBackgroundWarningColorDisabled
+		WRITE setBackgroundWarningColorDisabled DESIGNABLE true)
+	Q_PROPERTY(QColor backgroundErrorColorDisabled READ getBackgroundErrorColorDisabled
+		WRITE setBackgroundErrorColorDisabled DESIGNABLE true)
+	Q_PROPERTY(QColor foregroundNominalColorDisabled READ getForegroundNominalColorDisabled
+		WRITE setForegroundNominalColorDisabled DESIGNABLE true)
+	Q_PROPERTY(QColor foregroundWarningColorDisabled READ getForegroundWarningColorDisabled
+		WRITE setForegroundWarningColorDisabled DESIGNABLE true)
+	Q_PROPERTY(QColor foregroundErrorColorDisabled READ getForegroundErrorColorDisabled
+		WRITE setForegroundErrorColorDisabled DESIGNABLE true)
 	Q_PROPERTY(QColor magnitudeColor READ getMagnitudeColor
 		WRITE setMagnitudeColor DESIGNABLE true)
 	Q_PROPERTY(QColor majorTickColor READ getMajorTickColor
@@ -55,6 +67,18 @@ public:
 	void setForegroundWarningColor(QColor c) { foregroundWarningColor = c; }
 	QColor getForegroundErrorColor() const { return foregroundErrorColor; }
 	void setForegroundErrorColor(QColor c) { foregroundErrorColor = c; }
+	QColor getBackgroundNominalColorDisabled() const { return backgroundNominalColorDisabled; }
+	void setBackgroundNominalColorDisabled(QColor c) { backgroundNominalColorDisabled = c; }
+	QColor getBackgroundWarningColorDisabled() const { return backgroundWarningColorDisabled; }
+	void setBackgroundWarningColorDisabled(QColor c) { backgroundWarningColorDisabled = c; }
+	QColor getBackgroundErrorColorDisabled() const { return backgroundErrorColorDisabled; }
+	void setBackgroundErrorColorDisabled(QColor c) { backgroundErrorColorDisabled = c; }
+	QColor getForegroundNominalColorDisabled() const { return foregroundNominalColorDisabled; }
+	void setForegroundNominalColorDisabled(QColor c) { foregroundNominalColorDisabled = c; }
+	QColor getForegroundWarningColorDisabled() const { return foregroundWarningColorDisabled; }
+	void setForegroundWarningColorDisabled(QColor c) { foregroundWarningColorDisabled = c; }
+	QColor getForegroundErrorColorDisabled() const { return foregroundErrorColorDisabled; }
+	void setForegroundErrorColorDisabled(QColor c) { foregroundErrorColorDisabled = c; }
 	QColor getMagnitudeColor() const { return magnitudeColor; }
 	void setMagnitudeColor(QColor c) { magnitudeColor = c; }
 	QColor getMajorTickColor() const { return majorTickColor; }
