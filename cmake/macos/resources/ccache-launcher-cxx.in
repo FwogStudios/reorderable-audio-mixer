@@ -23,4 +23,12 @@ export CCACHE_SLOPPINESS
 if [[ "${CI}" ]]; then
     export CCACHE_NOHASHDIR=true
 fi
+# Xcode 26 exports every platform's *_DEPLOYMENT_TARGET into wrapper environments; clang refuses
+# to run with more than one set, so keep only the macOS one
+for var in $(env | sed -n 's/^\([A-Z0-9_]*_DEPLOYMENT_TARGET\)=.*//p'); do
+    if [ "${var}" != "MACOSX_DEPLOYMENT_TARGET" ]; then
+        unset "${var}"
+    fi
+done
+
 exec "${CMAKE_CXX_COMPILER_LAUNCHER}" "${CMAKE_CXX_COMPILER}" "$@"
