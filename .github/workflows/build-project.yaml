@@ -86,8 +86,10 @@ jobs:
           : Set Up Environment
           if (( ${+RUNNER_DEBUG} )) setopt XTRACE
 
-          print '::group::Select newest Xcode on the runner'
-          local xcode_app="$(ls -d /Applications/Xcode_*.app | sort -V | tail -n 1)"
+          print '::group::Select Xcode'
+          # Match the Xcode version OBS itself builds with; newer toolchains (26.6) break the plugin build
+          local xcode_app="/Applications/Xcode_26.5.app"
+          if [[ ! -d ${xcode_app} ]] xcode_app="$(ls -d /Applications/Xcode_*.app | sort -V | tail -n 1)"
           print "Using ${xcode_app}"
           sudo xcode-select --switch "${xcode_app}/Contents/Developer"
           xcodebuild -version
